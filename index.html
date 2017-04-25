@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+		<title>CSS modules</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/black.css" id="theme">
+		<!-- Theme used for syntax highlighting of code -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+		<!-- Printing and PDF exports -->
+    <style>
+      pre {
+        box-shadow: none !important;
+      }
+    </style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>CSS Modules</h1>
+				</section>
+        <section>
+          <h3>Задача:</h3>
+          <p>Сделать виджет подписки для партнеров</p>
+          <img src="widget.png" style="padding: 0; border: none; background-color: transparent;box-shadow: none;" />
+        </section>
+        <section>
+          <p>Виджет и его классы</p>
+          <pre style="box-shadow: none;">
+            <code class="hljs" data-trim style="font-size: 70%; line-height: 1.5;box-shadow: none;">
+              <div
+                class="panel panel-default panel-fluid page-index-subscription m-t-sm-7 m-t-xs-5">
+                <div class="panel-body">
+                    <div>...</div>
+                    <div class="subscription__form form-inline justify-center m-t-3">
+                      <div class="form-group">
+                        <input class="form-control subscription__input" />
+                      </div>
+                    </div>
+                    <div>...</div>
+                </div>
+              </div>
+            </code>
+          </pre>
+        </section>
+        <section>
+          <p>Размещение виджета</p>
+          <pre style>
+            <code class="hljs" data-trim contenteditable style="box-shadow: none;">
+              <div id="main"></div>
+              <script type="application/javascript">
+                window.busforSubscriber({
+                  publicKey: 'YOUR_KEY',
+                  container: document.getElementById('main'),
+                  locale: 'ru'
+                });
+              </script>
+            </code>
+          </pre>
+        </section>
+        <section>
+          <p>Перенос виджета</p>
+          <section>
+            <p style="margin:0;"><small>main.scss</small></p>
+            <pre style="margin-top:0;box-shadow: none;">
+              <code class="hljs" data-trim style="font-size: 70%; line-height: 1.5">
+                ...
+                @import 'busfor-uikit/components/buttons';
+                @import 'busfor-uikit/components/forms';
+                @import 'busfor-uikit/components/panels';
+                @import 'busfor-uikit/components/grid';
+                ...
+              </code>
+            </pre>
+          </section>
+          <section>
+            <p style="margin:0;"><small>styles/index.js</small></p>
+            <pre style="margin-top:0;box-shadow: none;">
+              <code class="hljs" data-trim style="font-size: 70%; line-height: 1.5">
+                ...
+                import styles from './main.scss';
+                module.exports = styles;
+                ...
+              </code>
+            </pre>
+          </section>
+          <section>
+            <p style="margin:0;"><small>Subscribe.js</small></p>
+            <pre style="margin-top:0;box-shadow: none;">
+              <code class="hljs" data-trim style="font-size: 70%; line-height: 1.5">
+                ...
+                @CSSModules(styles, { allowMultiple: true })
+                export default class Subscribe extends React.PureComponent {
+                ...
+              </code>
+            </pre>
+          </section>
+        </section>
+        <section>
+          <p>Результат css модулей</p>
+          <pre style>
+            <code class="hljs" data-trim contenteditable style="box-shadow: none;">
+              ...
+              .main__general___zYkXG .main__form-inline___2Ty1b
+              .main__general___zYkXG .main__m-t-3___3iBy4
+              .main__general___zYkXG .main__justify-center___3JyUM,
+              .main__general___zYkXG .main__subscription__response___1hXNs
+              ...
+            </code>
+          </pre>
+          <img style="margin-top: -60px;" src="widget-v1.png" alt="">
+        </section>
+        <section>
+          <p>Проблема</p>
+          <pre style>
+            <code class="hljs" data-trim contenteditable style="box-shadow: none;">
+              .selector-A {
+                @extend .selector-B;
+                unicorn: true;
+              }
+
+              .selector-B {
+                rainbow: true;
+              }
+            </code>
+          </pre>
+          <pre style>
+            <code class="hljs" data-trim contenteditable style="box-shadow: none;">
+              .selector-A {
+                unicorn: true;
+              }
+
+              .selector-B,
+              .selector-A {
+                rainbow: true;
+              }
+            </code>
+          </pre>
+        </section>
+        <section>
+          <p>Решение</p>
+          <pre style>
+            <code class="hljs" data-trim contenteditable style="box-shadow: none;">
+              .flex {
+                display: flex;
+              }
+
+              .justify-center {
+                justify-content: center;
+              }
+
+              .row {
+                margin: 0 (-$grid-gutter-padding / 2);
+              }
+
+              .content {
+                composes: row flex justify-center;
+              }
+            </code>
+          </pre>
+          <pre style>
+            <code class="hljs" data-trim contenteditable style="box-shadow: none;">
+              <div class="content flex justify-center row">...</div>
+            </code>
+          </pre>
+        </section>
+        <section>
+          <p>На этом у меня все :)</p>
+        </section>
+			</div>
+		</div>
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+		<script>
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// More info https://github.com/hakimel/reveal.js#dependencies
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+		</script>
+	</body>
+</html>
